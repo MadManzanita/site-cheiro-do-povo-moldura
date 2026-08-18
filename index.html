@@ -4,22 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cheiro do Povo • Foto de Perfil</title>
+
 <style>
   *{box-sizing:border-box}
+
   body{
     margin:0;
     font-family:Arial,Helvetica,sans-serif;
     background:#eef2f7;
     color:#172033;
   }
+
   header{
     background:linear-gradient(135deg,#0645c8,#075ce8);
     color:#fff;
     text-align:center;
     padding:18px 16px;
   }
-  header h1{margin:0;font-size:22px}
-  header p{margin:5px 0 0;font-size:13px;opacity:.9}
+
+  header h1{
+    margin:0;
+    font-size:22px;
+  }
+
+  header p{
+    margin:5px 0 0;
+    font-size:13px;
+    opacity:.9;
+  }
+
   main{
     width:min(1100px,94vw);
     margin:24px auto;
@@ -27,16 +40,38 @@
     grid-template-columns:300px 1fr;
     gap:22px;
   }
+
   .panel,.preview{
     background:#fff;
     border-radius:14px;
     box-shadow:0 8px 30px rgba(0,0,0,.10);
   }
-  .panel{padding:20px}
-  label{display:block;font-weight:700;font-size:13px;margin:0 0 7px}
-  input[type=file]{width:100%;margin-bottom:16px}
-  input[type=range]{width:100%;accent-color:#075ce8}
-  .control{margin-bottom:17px}
+
+  .panel{
+    padding:20px;
+  }
+
+  label{
+    display:block;
+    font-weight:700;
+    font-size:13px;
+    margin:0 0 7px;
+  }
+
+  input[type=file]{
+    width:100%;
+    margin-bottom:16px;
+  }
+
+  input[type=range]{
+    width:100%;
+    accent-color:#075ce8;
+  }
+
+  .control{
+    margin-bottom:17px;
+  }
+
   button{
     width:100%;
     border:0;
@@ -45,10 +80,26 @@
     font-weight:800;
     cursor:pointer;
     margin-top:8px;
+    -webkit-tap-highlight-color:transparent;
   }
-  #download{background:#075ce8;color:#fff}
-  #reset{background:#ffd21c;color:#18213a}
-  .hint{font-size:11px;line-height:1.45;color:#697386;margin-top:12px}
+
+  #download{
+    background:#075ce8;
+    color:#fff;
+  }
+
+  #reset{
+    background:#ffd21c;
+    color:#18213a;
+  }
+
+  .hint{
+    font-size:11px;
+    line-height:1.45;
+    color:#697386;
+    margin-top:12px;
+  }
+
   .preview{
     min-height:620px;
     display:flex;
@@ -56,6 +107,7 @@
     justify-content:center;
     padding:20px;
   }
+
   #stage{
     position:relative;
     width:min(650px,100%);
@@ -63,7 +115,9 @@
     overflow:hidden;
     background:#fff;
     border-radius:50%;
+    touch-action:none;
   }
+
   #photo{
     position:absolute;
     inset:0;
@@ -74,7 +128,9 @@
     display:none;
     user-select:none;
     -webkit-user-drag:none;
+    pointer-events:none;
   }
+
   #frame{
     position:absolute;
     inset:0;
@@ -83,7 +139,9 @@
     object-fit:contain;
     pointer-events:none;
     user-select:none;
+    -webkit-user-drag:none;
   }
+
   #empty{
     position:absolute;
     inset:0;
@@ -97,20 +155,30 @@
     font-weight:700;
     pointer-events:none;
   }
+
   @media(max-width:800px){
-    main{grid-template-columns:1fr}
-    .preview{min-height:auto}
+    main{
+      grid-template-columns:1fr;
+    }
+
+    .preview{
+      min-height:auto;
+    }
   }
 </style>
 </head>
+
 <body>
+
 <header>
   <h1>Cheiro do Povo • Foto de Perfil</h1>
   <p>Envie sua foto, ajuste e baixe com a nova moldura.</p>
 </header>
 
 <main>
+
   <section class="panel">
+
     <label for="file">Escolha sua foto</label>
     <input id="file" type="file" accept="image/*">
 
@@ -129,143 +197,683 @@
       <input id="y" type="range" min="-100" max="100" value="0" step="1">
     </div>
 
-    <button id="download">BAIXAR FOTO COM A MOLDURA</button>
-    <button id="reset">RESTAURAR</button>
+    <button id="download">
+      BAIXAR FOTO COM A MOLDURA
+    </button>
+
+    <button id="reset">
+      RESTAURAR
+    </button>
 
     <div class="hint">
       A foto fica atrás da moldura PNG. A área transparente da moldura permite que a foto apareça normalmente.
       Você também pode arrastar a foto diretamente dentro do círculo.
     </div>
+
   </section>
 
   <section class="preview">
+
     <div id="stage">
+
       <img id="photo" alt="">
-      <img id="frame" src="moldura_dr_sandoval_transparente.png" alt="Moldura Dr. Sandoval">
-      <div id="empty">Selecione uma foto<br>para começar</div>
+
+      <img
+        id="frame"
+        src="moldura_dr_sandoval_transparente.png"
+        alt="Moldura Dr. Sandoval"
+      >
+
+      <div id="empty">
+        Selecione uma foto<br>
+        para começar
+      </div>
+
     </div>
+
   </section>
+
 </main>
 
 <script>
+
 const file = document.getElementById('file');
 const photo = document.getElementById('photo');
 const frame = document.getElementById('frame');
 const empty = document.getElementById('empty');
+
 const zoom = document.getElementById('zoom');
 const x = document.getElementById('x');
 const y = document.getElementById('y');
+
 const reset = document.getElementById('reset');
 const download = document.getElementById('download');
 const stage = document.getElementById('stage');
 
 let objectUrl = null;
+
 let dragging = false;
-let startX = 0, startY = 0;
-let startPX = 0, startPY = 0;
+let startX = 0;
+let startY = 0;
+let startPX = 0;
+let startPY = 0;
+
+
+/* =========================
+   ATUALIZA A FOTO
+========================= */
 
 function updatePhoto(){
+
   const z = Number(zoom.value);
   const px = Number(x.value);
   const py = Number(y.value);
-  photo.style.transform = `translate(${px}%, ${py}%) scale(${z})`;
+
+  photo.style.transform =
+    `translate(${px}%, ${py}%) scale(${z})`;
 }
 
+
+/* =========================
+   SELEÇÃO DA FOTO
+========================= */
+
 file.addEventListener('change', e => {
+
   const f = e.target.files[0];
+
   if(!f) return;
-  if(objectUrl) URL.revokeObjectURL(objectUrl);
+
+  if(objectUrl){
+    URL.revokeObjectURL(objectUrl);
+  }
+
   objectUrl = URL.createObjectURL(f);
+
   photo.src = objectUrl;
+
   photo.style.display = 'block';
+
   empty.style.display = 'none';
+
   updatePhoto();
+
 });
 
-[zoom,x,y].forEach(el => el.addEventListener('input', updatePhoto));
+
+/* =========================
+   CONTROLES
+========================= */
+
+[zoom,x,y].forEach(el => {
+
+  el.addEventListener('input', updatePhoto);
+
+});
+
+
+/* =========================
+   RESTAURAR
+========================= */
 
 reset.addEventListener('click', () => {
+
   zoom.value = 1;
   x.value = 0;
   y.value = 0;
+
   updatePhoto();
+
 });
 
+
+/* =========================
+   ARRASTAR FOTO
+========================= */
+
 function pointerDown(e){
+
   if(photo.style.display === 'none') return;
+
   dragging = true;
-  const p = e.touches ? e.touches[0] : e;
-  startX = p.clientX;
-  startY = p.clientY;
+
+  startX = e.clientX;
+  startY = e.clientY;
+
   startPX = Number(x.value);
   startPY = Number(y.value);
-  if(e.pointerId !== undefined) stage.setPointerCapture(e.pointerId);
-}
-function pointerMove(e){
-  if(!dragging) return;
-  const p = e.touches ? e.touches[0] : e;
-  const dx = p.clientX - startX;
-  const dy = p.clientY - startY;
-  x.value = Math.max(-100, Math.min(100, startPX + dx / stage.clientWidth * 100));
-  y.value = Math.max(-100, Math.min(100, startPY + dy / stage.clientHeight * 100));
-  updatePhoto();
-}
-function pointerUp(){ dragging = false; }
 
-stage.addEventListener('pointerdown', pointerDown);
-stage.addEventListener('pointermove', pointerMove);
-stage.addEventListener('pointerup', pointerUp);
-stage.addEventListener('pointercancel', pointerUp);
+  try{
+    stage.setPointerCapture(e.pointerId);
+  }catch(err){}
+
+}
+
+
+function pointerMove(e){
+
+  if(!dragging) return;
+
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+
+  x.value = Math.max(
+    -100,
+    Math.min(
+      100,
+      startPX + dx / stage.clientWidth * 100
+    )
+  );
+
+  y.value = Math.max(
+    -100,
+    Math.min(
+      100,
+      startPY + dy / stage.clientHeight * 100
+    )
+  );
+
+  updatePhoto();
+
+}
+
+
+function pointerUp(){
+
+  dragging = false;
+
+}
+
+
+stage.addEventListener(
+  'pointerdown',
+  pointerDown
+);
+
+stage.addEventListener(
+  'pointermove',
+  pointerMove
+);
+
+stage.addEventListener(
+  'pointerup',
+  pointerUp
+);
+
+stage.addEventListener(
+  'pointercancel',
+  pointerUp
+);
+
+
+/* =========================
+   VERIFICA SE É iPHONE/iPAD
+========================= */
+
+function isIOS(){
+
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+         (navigator.platform === 'MacIntel' &&
+          navigator.maxTouchPoints > 1);
+
+}
+
+
+/* =========================
+   GERA A IMAGEM
+========================= */
+
+function generateImage(){
+
+  return new Promise((resolve,reject) => {
+
+    const size = 1200;
+
+    const canvas = document.createElement('canvas');
+
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext('2d');
+
+    if(!ctx){
+
+      reject(
+        new Error('Canvas não suportado.')
+      );
+
+      return;
+    }
+
+
+    /* FUNDO TRANSPARENTE */
+
+    ctx.clearRect(
+      0,
+      0,
+      size,
+      size
+    );
+
+
+    /* FOTO */
+
+    const pImg = new Image();
+
+    pImg.onload = () => {
+
+      const z = Number(zoom.value);
+      const px = Number(x.value);
+      const py = Number(y.value);
+
+
+      const scale =
+        Math.max(
+          size / pImg.naturalWidth,
+          size / pImg.naturalHeight
+        ) * z;
+
+
+      const w =
+        pImg.naturalWidth * scale;
+
+      const h =
+        pImg.naturalHeight * scale;
+
+
+      const dx =
+        (size - w) / 2 +
+        (px / 100) * size;
+
+
+      const dy =
+        (size - h) / 2 +
+        (py / 100) * size;
+
+
+      /* RECORTE CIRCULAR */
+
+      ctx.save();
+
+      ctx.beginPath();
+
+      ctx.arc(
+        size / 2,
+        size / 2,
+        size / 2,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.clip();
+
+
+      ctx.drawImage(
+        pImg,
+        dx,
+        dy,
+        w,
+        h
+      );
+
+
+      ctx.restore();
+
+
+      /* MOLDURA */
+
+      const fImg = new Image();
+
+
+      fImg.onload = () => {
+
+        ctx.drawImage(
+          fImg,
+          0,
+          0,
+          size,
+          size
+        );
+
+
+        canvas.toBlob(
+          blob => {
+
+            if(!blob){
+
+              reject(
+                new Error(
+                  'Não foi possível gerar a imagem.'
+                )
+              );
+
+              return;
+            }
+
+            resolve({
+              blob: blob,
+              canvas: canvas
+            });
+
+          },
+          'image/png'
+        );
+
+      };
+
+
+      fImg.onerror = () => {
+
+        reject(
+          new Error(
+            'Não foi possível carregar a moldura PNG.'
+          )
+        );
+
+      };
+
+
+      fImg.src = frame.src;
+
+    };
+
+
+    pImg.onerror = () => {
+
+      reject(
+        new Error(
+          'Não foi possível carregar a foto.'
+        )
+      );
+
+    };
+
+
+    pImg.src = photo.src;
+
+  });
+
+}
+
+
+/* =========================
+   DOWNLOAD
+========================= */
 
 download.addEventListener('click', async () => {
+
   if(photo.style.display === 'none'){
-    alert('Selecione uma foto primeiro.');
+
+    alert(
+      'Selecione uma foto primeiro.'
+    );
+
     return;
   }
 
-  const size = 1200;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
 
-  // Fundo transparente: não desenhamos nenhum retângulo branco.
-  ctx.clearRect(0,0,size,size);
+  /*
+    No iPhone, abrimos a janela imediatamente.
+    Isso é importante porque o Safari pode bloquear
+    uma nova janela se ela for aberta depois de uma
+    operação assíncrona.
+  */
 
-  const pImg = new Image();
-  pImg.onload = () => {
-    const z = Number(zoom.value);
-    const px = Number(x.value);
-    const py = Number(y.value);
+  let iosWindow = null;
 
-    // object-fit: cover para preencher o círculo.
-    const scale = Math.max(size / pImg.naturalWidth, size / pImg.naturalHeight) * z;
-    const w = pImg.naturalWidth * scale;
-    const h = pImg.naturalHeight * scale;
-    const dx = (size - w)/2 + (px/100)*size;
-    const dy = (size - h)/2 + (py/100)*size;
+  if(isIOS()){
 
-    // Recorte circular da foto.
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(size/2,size/2,size/2,0,Math.PI*2);
-    ctx.clip();
-    ctx.drawImage(pImg,dx,dy,w,h);
-    ctx.restore();
+    iosWindow = window.open(
+      '',
+      '_blank'
+    );
 
-    const fImg = new Image();
-    fImg.onload = () => {
-      ctx.drawImage(fImg,0,0,size,size);
-      const a = document.createElement('a');
-      a.download = 'foto-cheiro-do-povo.png';
-      a.href = canvas.toDataURL('image/png');
-      a.click();
-    };
-    fImg.onerror = () => alert('Não foi possível carregar a moldura PNG. Verifique o nome do arquivo no GitHub.');
-    fImg.src = frame.src;
-  };
-  pImg.src = photo.src;
+    if(iosWindow){
+
+      iosWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport"
+                content="width=device-width,initial-scale=1">
+          <title>Foto Cheiro do Povo</title>
+          <style>
+            body{
+              margin:0;
+              background:#111;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              min-height:100vh;
+              font-family:Arial,sans-serif;
+              color:white;
+              text-align:center;
+            }
+
+            img{
+              max-width:100%;
+              max-height:85vh;
+              display:block;
+            }
+
+            p{
+              position:fixed;
+              bottom:10px;
+              left:15px;
+              right:15px;
+              font-size:14px;
+            }
+          </style>
+        </head>
+
+        <body>
+
+          <div>
+            <p>
+              Sua foto está sendo preparada...
+            </p>
+          </div>
+
+        </body>
+        </html>
+      `);
+
+      iosWindow.document.close();
+
+    }
+
+  }
+
+
+  try{
+
+    const result =
+      await generateImage();
+
+    const blob =
+      result.blob;
+
+
+    /* =========================
+       iPHONE / iOS
+    ========================= */
+
+    if(isIOS()){
+
+      /*
+        Primeiro tentamos o compartilhamento
+        nativo do iPhone.
+      */
+
+      if(
+        navigator.share &&
+        navigator.canShare
+      ){
+
+        try{
+
+          const imageFile =
+            new File(
+              [blob],
+              'foto-cheiro-do-povo.png',
+              {
+                type:'image/png'
+              }
+            );
+
+
+          if(
+            navigator.canShare({
+              files:[imageFile]
+            })
+          ){
+
+            /*
+              Fecha a aba auxiliar porque
+              o compartilhamento nativo será
+              usado.
+            */
+
+            if(iosWindow){
+
+              try{
+                iosWindow.close();
+              }catch(err){}
+
+            }
+
+
+            await navigator.share({
+
+              files:[imageFile],
+
+              title:
+                'Foto Cheiro do Povo',
+
+              text:
+                'Foto de perfil com a moldura Cheiro do Povo'
+
+            });
+
+            return;
+
+          }
+
+        }catch(err){
+
+          /*
+            Se o usuário cancelar o compartilhamento,
+            simplesmente não fazemos nada.
+          */
+
+          if(
+            err &&
+            err.name === 'AbortError'
+          ){
+
+            if(iosWindow){
+
+              try{
+                iosWindow.close();
+              }catch(e){}
+
+            }
+
+            return;
+
+          }
+
+        }
+
+      }
+
+
+      /*
+        FALLBACK DO iPHONE
+
+        Se o compartilhamento não estiver
+        disponível, mostramos a imagem em
+        uma nova aba.
+
+        No Safari o usuário pode tocar e
+        segurar a imagem e escolher
+        "Salvar em Fotos".
+      */
+
+      const imageUrl =
+        URL.createObjectURL(blob);
+
+
+      if(iosWindow){
+
+        iosWindow.location.href =
+          imageUrl;
+
+      }else{
+
+        window.open(
+          imageUrl,
+          '_blank'
+        );
+
+      }
+
+      return;
+
+    }
+
+
+    /* =========================
+       ANDROID / DESKTOP
+    ========================= */
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const a =
+      document.createElement('a');
+
+    a.href = url;
+
+    a.download =
+      'foto-cheiro-do-povo.png';
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+
+    setTimeout(() => {
+
+      URL.revokeObjectURL(url);
+
+    }, 1000);
+
+
+  }catch(error){
+
+    console.error(error);
+
+    if(iosWindow){
+
+      try{
+        iosWindow.close();
+      }catch(err){}
+
+    }
+
+    alert(
+      'Não foi possível gerar a imagem. ' +
+      'Tente novamente.'
+    );
+
+  }
+
 });
+
 </script>
+
 </body>
 </html>
